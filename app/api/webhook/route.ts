@@ -37,6 +37,12 @@ export async function POST(req: Request) {
   const addressString = addressComponents.filter((c) => c !== null).join(", ");
 
   if (event.type === "checkout.session.completed") {
+    const orderId = session?.metadata?.orderId;
+
+    if (!orderId) {
+      return new NextResponse("Order ID is missing", { status: 400 });
+    }
+
     const userId = session?.metadata?.userId;
     const userName = session?.metadata?.userName || "Unknown"; // استخدام قيمة افتراضية في حال كانت القيمة غير معروفة
     const userEmail = session?.metadata?.userEmail || "Unknown"; // استخدام قيمة افتراضية في حال كانت القيمة غير معروفة
@@ -69,6 +75,21 @@ export async function POST(req: Request) {
       include: {
         orderItems: true,
       },
+    });
+
+    // حفظ بيانات المرسل والمستلم في formdata
+    const formData = {
+      orderId: orderId,
+      senderName: session.metadata?.senderName || "Unknown", // إضافة التحقق من null
+      senderPhone: session.metadata?.senderPhone || "Unknown",
+      recipientName: session.metadata?.recipientName || "Unknown",
+      recipientPhone: session.metadata?.recipientPhone || "Unknown",
+      recipientAddress: session.metadata?.recipientAddress || "Unknown",
+      additionalNotes: session.metadata?.additionalNotes || "",
+    };
+
+    await prismadb.formData.create({
+      data: formData,
     });
 
     const productIds = order.orderItems.map((orderItem) => orderItem.productId);

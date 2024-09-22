@@ -36,6 +36,7 @@ export async function GET(
       include: {
         user: true,
         orderItems: true, // تضمين تفاصيل العناصر في الطلب
+        formData: true, // جلب بيانات الفورم المرتبطة
       },
     });
 

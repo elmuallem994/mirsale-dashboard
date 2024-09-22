@@ -125,6 +125,23 @@ model Image {
   @@index([productId])
 }
 
+model FormData {
+  id                   String   @id @default(uuid()) // معرف فريد للبيانات المدخلة في الفورم
+  orderId             String?   // معرف الطلب المرتبط
+  order                Order?    @relation(fields: [orderId], references: [id], onDelete: Cascade) // ربط البيانات المدخلة بالطلب
+  senderName           String   // اسم المرسل
+  senderPhone          String   // هاتف المرسل
+  recipientName        String   // اسم المستلم
+  recipientPhone       String   // هاتف المستلم
+  recipientAddress     String   // عنوان المستلم
+  additionalNotes      String   // ملاحظات إضافية يدخلها المستخدم
+  createdAt            DateTime @default(now()) // تاريخ الإدخال
+  updatedAt            DateTime @updatedAt // تاريخ التحديث الأخير
+  
+  @@index([orderId]) // فهرسة معرف الطلب
+}
+
+
 model Order {
   id         String   @id @default(uuid()) // معرف فريد للطلب
   storeId    String
@@ -138,6 +155,7 @@ model Order {
   status     String   @default("تم استلام الطلب")
   phone      String   @default("")
   address    String   @default("")
+  formData   FormData[]// العلاقة الجديدة مع جدول FormData
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

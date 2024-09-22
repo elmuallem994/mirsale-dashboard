@@ -19,14 +19,18 @@ export async function POST(
   req: Request,
   { params }: { params: { storeId: string } }
 ) {
-  const { productIds, userId, userName, userEmail } = await req.json();
+  const { productIds, userId, userName, userEmail, formData } =
+    await req.json();
 
   if (!productIds || productIds.length === 0) {
     return new NextResponse("Product ids are required", { status: 400 });
   }
 
-  if (!userId || !userName || !userEmail) {
-    return new NextResponse("User ID is required", { status: 400 });
+  if (!userId || !userName || !userEmail || !formData) {
+    return new NextResponse(
+      "User ID || !userName || !userEmail || !formData is required",
+      { status: 400 }
+    );
   }
 
   const products = await prismadb.product.findMany({
@@ -89,6 +93,12 @@ export async function POST(
       userId: userId,
       userName: userName, // تضمين اسم المستخدم
       userEmail: userEmail,
+      senderName: formData?.senderName || "", // تمرير بيانات المرسل
+      senderPhone: formData?.senderPhone || "",
+      recipientName: formData?.recipientName || "",
+      recipientPhone: formData?.recipientPhone || "",
+      recipientAddress: formData?.recipientAddress || "",
+      additionalNotes: formData?.additionalNotes || "",
     }, // تضمين البريد الإلكتروني للمستخدم
   });
   return NextResponse.json(
